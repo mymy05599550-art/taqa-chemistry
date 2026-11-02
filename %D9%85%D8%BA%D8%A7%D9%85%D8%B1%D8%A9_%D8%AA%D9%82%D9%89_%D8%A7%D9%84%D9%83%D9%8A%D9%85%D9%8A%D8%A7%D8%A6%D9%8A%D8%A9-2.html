@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مغامرة تقى في عالم الذرة</title>
+<style>
+:root{--ink:#25183d;--purple:#7950a8;--pink:#f2c9e8;--mint:#c9f4e7;--bg:#fbf7ff}
+*{box-sizing:border-box}
+body{margin:0;font-family:Tahoma,Arial,sans-serif;background:radial-gradient(circle at top left,#f7dff1,transparent 38%),linear-gradient(135deg,#f9f5ff,#edfaff);color:var(--ink);min-height:100vh;padding:22px}
+main{max-width:760px;margin:auto}
+header,.panel{background:#ffffffdf;border:1px solid #eadcf5;border-radius:24px;padding:24px;box-shadow:0 12px 35px #583b7514}
+header{text-align:center;background:linear-gradient(135deg,#37234f,#704d91);color:white;overflow:hidden}
+.kicker{letter-spacing:2px;color:#f6d5f0;font-size:.8rem}
+h1{font-size:clamp(1.8rem,5vw,2.8rem);margin:12px 0}
+header p{color:#f1e7fa;line-height:1.8;margin:0}
+.atom{font-size:4rem;margin:12px auto;filter:drop-shadow(0 0 14px #f8c8f1)}
+.panel{margin-top:18px}
+.topline{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.tag{background:#f3e8fb;color:#69458e;border-radius:99px;padding:8px 13px;font-size:.88rem}
+.progress{height:9px;background:#eee6f5;border-radius:99px;margin:18px 0 24px;overflow:hidden}
+.bar{height:100%;width:0;background:linear-gradient(90deg,#a77bd1,#e7a9d5);transition:width .25s}
+h2{font-size:1.35rem;margin:8px 0 18px}
+.question{font-size:1.12rem;line-height:1.9;font-weight:bold;margin-bottom:18px}
+.answers{display:grid;gap:11px}
+.answer{width:100%;text-align:right;border:1px solid #e3d7ed;background:#fff;padding:15px 17px;border-radius:15px;font:inherit;color:var(--ink);cursor:pointer;transition:.15s}
+.answer:hover:not(:disabled){border-color:#9c70c3;background:#fbf6ff;transform:translateY(-1px)}
+.answer:disabled{cursor:default;opacity:1}
+.answer.correct{border:2px solid #239b70;background:#effbf6}
+.answer.wrong{border:2px solid #d16c78;background:#fff3f4}
+.feedback{display:none;margin-top:16px;padding:14px;border-radius:14px;background:#f5f0fa;line-height:1.8}
+.feedback.show{display:block}
+button.next,.restart{border:0;background:#704d91;color:#fff;border-radius:14px;padding:13px 20px;font:inherit;font-weight:bold;cursor:pointer;margin-top:16px;width:100%}
+button.next:hover,.restart:hover{background:#573873}
+.result{text-align:center;display:none}
+.result .score{font-size:3rem;color:#7950a8;font-weight:bold;margin:12px}
+.certificate{border:2px dashed #c99bc9;border-radius:20px;padding:24px;margin-top:18px;background:linear-gradient(135deg,#fffafd,#f5f0ff)}
+.certificate h3{font-size:1.7rem;margin:8px}
+footer{text-align:center;color:#806d91;font-size:.85rem;padding:22px 8px}
+.small{font-size:.88rem;color:#786b83;line-height:1.8}
+@media(max-width:520px){body{padding:12px}header,.panel{padding:18px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="kicker">لعبة تعليمية تفاعلية · كيمياء ثاني ثانوي</div>
+  <div class="atom" aria-hidden="true">⚛️</div>
+  <h1>مغامرة تقى في عالم الذرة</h1>
+  <p>هل تستطيعين اجتياز تحديات الذرة وجمع النقاط؟<br>ابدئي المهمة واكتشفي أسرار مكوّنات الذرة!</p>
+</header>
+
+<section class="panel" id="game">
+  <div class="topline">
+    <span class="tag" id="stage">المرحلة 1 من 5</span>
+    <span class="tag">⭐ النقاط: <b id="points">0</b></span>
+  </div>
+  <div class="progress"><div class="bar" id="bar"></div></div>
+  <h2>🔬 تحدي الذرة الغامضة</h2>
+  <div class="question" id="question"></div>
+  <div class="answers" id="answers"></div>
+  <div class="feedback" id="feedback" aria-live="polite"></div>
+  <button class="next" id="next" hidden>المرحلة التالية ←</button>
+</section>
+
+<section class="panel result" id="result">
+  <div style="font-size:3.4rem">🏆</div>
+  <h2>انتهت المهمة بنجاح!</h2>
+  <div class="score" id="finalScore">0 / 5</div>
+  <p id="message"></p>
+  <div class="certificate">
+    <div style="font-size:2rem">🧪 ✨</div>
+    <h2>شهادة إنجاز</h2>
+    <p>تُمنح إلى</p>
+    <h3>تقى المصري</h3>
+    <p>لاجتيازها مغامرة الذرة الغامضة</p>
+    <strong>عالمة كيمياء واعدة</strong>
+  </div>
+  <button class="restart" id="restart">إعادة اللعبة</button>
+</section>
+<footer>إعداد وتصميم: <strong>تقى المصري</strong> 💜<br><span class="small">موضوع اللعبة: تركيب الذرة — قد يختلف ترتيب الدروس حسب طبعة الكتاب.</span></footer>
+</main>
+<script>
+const questions = [
+ {q:"ما الجسيم الذي يحمل شحنة موجبة داخل الذرة؟",o:["الإلكترون","البروتون","النيوترون"],a:1,e:"البروتون جسيم موجب الشحنة ويوجد داخل نواة الذرة."},
+ {q:"أين توجد البروتونات والنيوترونات؟",o:["في النواة","حول النواة","خارج الذرة"],a:0,e:"توجد البروتونات والنيوترونات في نواة الذرة."},
+ {q:"ما شحنة الإلكترون؟",o:["موجبة","متعادلة","سالبة"],a:2,e:"الإلكترون جسيم سالب الشحنة."},
+ {q:"ماذا يسمى عدد البروتونات في نواة الذرة؟",o:["العدد الذري","العدد الكتلي","عدد النيوترونات"],a:0,e:"العدد الذري يساوي عدد البروتونات في نواة الذرة."},
+ {q:"إذا كان عدد البروتونات 6، فما العدد الذري؟",o:["12","6","3"],a:1,e:"العدد الذري يساوي عدد البروتونات؛ إذن العدد الذري هو 6."}
+];
+let index=0,score=0,locked=false;
+const $=id=>document.getElementById(id);
+function render(){
+ locked=false;
+ $("stage").textContent=`المرحلة ${index+1} من ${questions.length}`;
+ $("points").textContent=score;
+ $("bar").style.width=`${index/questions.length*100}%`;
+ $("question").textContent=questions[index].q;
+ $("answers").innerHTML="";
+ $("feedback").className="feedback";$("feedback").textContent="";
+ $("next").hidden=true;
+ questions[index].o.forEach((option,n)=>{
+  const b=document.createElement("button");b.className="answer";b.textContent=String.fromCharCode(65+n)+" ـ "+option;
+  b.addEventListener("click",()=>choose(n,b));$("answers").appendChild(b);
+ });
+}
+function choose(n,button){
+ if(locked)return;locked=true;
+ const q=questions[index];
+ [...$("answers").children].forEach((b,i)=>{b.disabled=true;if(i===q.a)b.classList.add("correct");});
+ if(n===q.a)score++;else button.classList.add("wrong");
+ $("points").textContent=score;
+ $("feedback").textContent=(n===q.a?"🎉 إجابة صحيحة! ":"💡 مو مشكلة، نتعلم ونكمل. ")+q.e;
+ $("feedback").classList.add("show");
+ $("next").textContent=index===questions.length-1?"عرض النتيجة":"المرحلة التالية ←";
+ $("next").hidden=false;
+}
+$("next").addEventListener("click",()=>{
+ if(index<questions.length-1){index++;render();}
+ else{
+  $("game").style.display="none";$("result").style.display="block";
+  $("finalScore").textContent=`${score} / ${questions.length}`;
+  $("message").textContent=score===5?"ممتاز يا تقى! إجاباتك كلها صحيحة.":"أحسنتِ يا تقى! راجعي التفسيرات وجربي مرة ثانية لتحققي الدرجة الكاملة.";
+  $("bar").style.width="100%";
+ }
+});
+$("restart").addEventListener("click",()=>{index=0;score=0;$("result").style.display="none";$("game").style.display="block";render();});
+render();
+</script>
+</body>
+</html>
